@@ -10,15 +10,24 @@
     <div class="app-shell">
       <header class="topbar">
         <div class="project">
-          <span class="project-kicker">Game Narrative Tool</span>
-          <h1>雾港行动</h1>
+          <span class="project-kicker" data-i18n="appKicker">剧情工作台</span>
+          <div class="title-row">
+            <h1>银河故事板</h1>
+            <label class="language-switch">
+              <span data-i18n="language">界面语言</span>
+              <select id="languageSelect" aria-label="界面语言">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+              </select>
+            </label>
+          </div>
         </div>
         <div class="toolbar">
           <button class="icon-button" id="addSceneTop" aria-label="新增场景">+</button>
-          <button id="importJson">导入</button>
-          <button id="exportJson">导出 JSON</button>
-          <button id="exportMarkdown">导出 MD</button>
-          <button class="primary" id="saveHint">保存</button>
+          <button id="importJson" data-i18n="import">导入</button>
+          <button id="exportJson" data-i18n="exportJson">导出 JSON</button>
+          <button id="exportMarkdown" data-i18n="exportMd">导出 MD</button>
+          <button class="primary" id="saveHint" data-i18n="save">保存</button>
           <input class="file-input" id="importFile" type="file" accept="application/json,.json" />
         </div>
       </header>
@@ -27,15 +36,14 @@
         <aside class="scene-rail">
           <div class="panel-heading">
             <div>
-              <span class="eyebrow">Scenes</span>
-              <h2>剧情场景</h2>
+              <h2 class="section-title-accent" data-i18n="sceneList">剧情场景</h2>
             </div>
             <span class="counter" id="sceneCount">0</span>
           </div>
 
           <label class="search">
-            <span>搜索</span>
-            <input id="sceneSearch" type="search" placeholder="输入标题、地点或角色" aria-label="搜索剧情场景" />
+            <span data-i18n="search">搜索</span>
+            <input id="sceneSearch" type="search" placeholder="输入标题、地点或角色" aria-label="搜索剧情场景" data-i18n-placeholder="searchPlaceholder" />
           </label>
 
           <nav class="scene-list" id="sceneList" aria-label="剧情场景列表"></nav>
@@ -44,24 +52,23 @@
         <section class="editor">
           <div class="panel-heading">
             <div>
-              <span class="eyebrow">Editor</span>
-              <h2>当前场景编辑</h2>
+              <h2 class="section-title-accent" data-i18n="editor">编辑</h2>
             </div>
             <div class="editor-actions">
-              <button id="duplicateScene">复制</button>
-              <button id="pasteScene" disabled>粘贴</button>
-              <button id="deleteScene" class="danger-button">删除</button>
+              <button id="duplicateScene" data-i18n="copy">复制</button>
+              <button id="pasteScene" disabled data-i18n="paste">粘贴</button>
+              <button id="deleteScene" class="danger-button" data-i18n="delete">删除</button>
               <span class="status-dot" id="editStatus">已保存</span>
             </div>
           </div>
 
           <div class="form-grid">
             <label class="field wide">
-              <span>场景标题</span>
+              <span data-i18n="title">场景标题</span>
               <input data-field="title" data-required="true" />
             </label>
             <label class="field">
-              <span>剧情阶段</span>
+              <span data-i18n="stage">剧情阶段</span>
               <select data-field="stage">
                 <option>第一幕 · 引入</option>
                 <option>第二幕 · 调查</option>
@@ -70,15 +77,15 @@
               </select>
             </label>
             <label class="field">
-              <span>地点</span>
+              <span data-i18n="location">地点</span>
               <input data-field="location" data-required="true" />
             </label>
             <label class="field">
-              <span>登场角色</span>
+              <span data-i18n="characters">登场角色</span>
               <input data-field="characters" data-required="true" />
             </label>
             <label class="field">
-              <span>情绪类型</span>
+              <span data-i18n="emotionType">情绪类型</span>
               <select data-field="emotionType">
                 <option>悬疑</option>
                 <option>紧张</option>
@@ -90,27 +97,27 @@
               </select>
             </label>
             <label class="field">
-              <span>情绪强度 <b id="emotionValue">5</b></span>
+              <span><span data-i18n="emotionLevel">情绪强度</span> <b id="emotionValue">5</b></span>
               <input data-field="emotionLevel" type="range" min="1" max="10" />
             </label>
             <label class="field wide">
-              <span>玩家目标</span>
+              <span data-i18n="playerGoal">玩家目标</span>
               <input data-field="playerGoal" data-required="true" />
             </label>
             <label class="field wide">
-              <span>触发条件</span>
+              <span data-i18n="trigger">触发条件</span>
               <input data-field="trigger" data-required="true" />
             </label>
             <label class="field wide">
-              <span>关键事件</span>
+              <span data-i18n="keyEvent">关键事件</span>
               <input data-field="keyEvent" data-required="true" />
             </label>
             <label class="field wide textarea-field">
-              <span>剧情正文</span>
+              <span data-i18n="body">剧情正文</span>
               <textarea data-field="body" data-required="true"></textarea>
             </label>
             <label class="field wide textarea-field">
-              <span>系统表现</span>
+              <span data-i18n="presentation">系统表现</span>
               <textarea data-field="presentation" data-required="true"></textarea>
             </label>
           </div>
@@ -119,12 +126,11 @@
         <aside class="preview">
           <div class="panel-heading">
             <div>
-              <span class="eyebrow">Preview</span>
-              <h2>实时预览</h2>
+              <h2 class="section-title-accent" data-i18n="preview">实时预览</h2>
             </div>
             <div class="segmented">
-              <button class="selected" data-preview="player">玩家</button>
-              <button data-preview="designer">设计</button>
+              <button class="selected" data-preview="player" data-i18n="player">玩家</button>
+              <button data-preview="designer" data-i18n="designer">设计</button>
             </div>
           </div>
 
@@ -137,7 +143,7 @@
                 <p id="previewKeyEvent">关键事件</p>
               </div>
               <div class="quest-box">
-                <span>当前目标</span>
+                <span data-i18n="currentGoal">当前目标</span>
                 <strong id="previewGoal">前往候船厅调查异常广播</strong>
               </div>
             </div>
@@ -151,9 +157,9 @@
 
       <section class="bottom-dock">
         <div class="dock-tabs" role="tablist" aria-label="辅助视图">
-          <button class="selected" data-tab="map">地图路线</button>
-          <button data-tab="emotion">情绪曲线</button>
-          <button data-tab="summary">场景摘要</button>
+          <button class="selected" data-tab="map" data-i18n="mapRoute">地图路线</button>
+          <button data-tab="emotion" data-i18n="emotionCurve">情绪曲线</button>
+          <button data-tab="summary" data-i18n="sceneSummary">场景摘要</button>
         </div>
 
         <div class="dock-content">
@@ -163,7 +169,7 @@
               <div class="route-strip" id="routeStrip" aria-label="地点路线顺序"></div>
             </div>
             <div class="dock-notes map-details">
-              <span class="eyebrow">Location</span>
+              <span class="eyebrow" data-i18n="locationEyebrow">地点</span>
               <h3 id="mapDetailTitle">旧码头</h3>
               <p id="routeNote">当前场景高亮在旧码头。</p>
               <div class="linked-scenes" id="linkedScenes"></div>
@@ -176,7 +182,7 @@
               <div class="emotion-metrics" id="emotionMetrics"></div>
             </div>
             <div class="dock-notes emotion-details">
-              <span class="eyebrow">Emotion</span>
+              <span class="eyebrow" data-i18n="emotionEyebrow">情绪</span>
               <h3 id="emotionTitle">悬疑到真相揭露</h3>
               <p id="emotionNote">当前节奏从中等悬疑开始。</p>
               <div class="emotion-tags" id="emotionTags"></div>
@@ -194,10 +200,10 @@
       <div class="export-card">
         <div class="panel-heading">
           <div>
-            <span class="eyebrow">Export</span>
+            <span class="eyebrow" data-i18n="exportEyebrow">导出</span>
             <h2 id="exportTitle">导出项目</h2>
           </div>
-          <button id="closeExport">关闭</button>
+          <button id="closeExport" data-i18n="close">关闭</button>
         </div>
         <textarea id="exportContent" readonly></textarea>
         <div class="export-actions">
@@ -209,7 +215,6 @@
 
     <div class="confirm-dialog hidden" id="deleteDialog" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
       <div class="confirm-card">
-        <span class="eyebrow">Delete</span>
         <h2 id="deleteTitle">删除场景</h2>
         <p id="deleteMessage">确定删除当前场景吗？</p>
         <div class="confirm-actions">

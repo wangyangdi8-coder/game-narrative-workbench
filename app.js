@@ -16,6 +16,7 @@ const importJson = document.querySelector("#importJson");
 const exportJson = document.querySelector("#exportJson");
 const exportMarkdown = document.querySelector("#exportMarkdown");
 const importFile = document.querySelector("#importFile");
+const languageSelect = document.querySelector("#languageSelect");
 const exportDialog = document.querySelector("#exportDialog");
 const closeExport = document.querySelector("#closeExport");
 const exportTitle = document.querySelector("#exportTitle");
@@ -23,6 +24,7 @@ const exportContent = document.querySelector("#exportContent");
 const exportMeta = document.querySelector("#exportMeta");
 const downloadExport = document.querySelector("#downloadExport");
 const deleteDialog = document.querySelector("#deleteDialog");
+const deleteTitle = document.querySelector("#deleteTitle");
 const deleteMessage = document.querySelector("#deleteMessage");
 const cancelDelete = document.querySelector("#cancelDelete");
 const confirmDelete = document.querySelector("#confirmDelete");
@@ -46,6 +48,148 @@ const emotionNote = document.querySelector("#emotionNote");
 const emotionTags = document.querySelector("#emotionTags");
 const summaryList = document.querySelector("#summaryList");
 const storageKey = "narrative-tool-project-v1";
+const languageKey = "narrative-tool-language";
+
+const i18n = {
+  zh: {
+    appKicker: "剧情工作台",
+    sceneEyebrow: "列表",
+    editorEyebrow: "表单",
+    previewEyebrow: "窗口",
+    locationEyebrow: "地点",
+    emotionEyebrow: "情绪",
+    exportEyebrow: "导出",
+    deleteEyebrow: "操作",
+    language: "界面语言",
+    import: "导入",
+    exportJson: "导出 JSON",
+    exportMd: "导出 MD",
+    save: "保存",
+    sceneList: "剧情场景",
+    search: "搜索",
+    searchPlaceholder: "输入标题、地点或角色",
+    editor: "编辑",
+    copy: "复制",
+    paste: "粘贴",
+    delete: "删除",
+    title: "场景标题",
+    stage: "剧情阶段",
+    location: "地点",
+    characters: "登场角色",
+    emotionType: "情绪类型",
+    emotionLevel: "情绪强度",
+    playerGoal: "玩家目标",
+    trigger: "触发条件",
+    keyEvent: "关键事件",
+    body: "剧情正文",
+    presentation: "系统表现",
+    preview: "实时预览",
+    player: "玩家",
+    designer: "设计",
+    currentGoal: "当前目标",
+    mapRoute: "地图路线",
+    emotionCurve: "情绪曲线",
+    sceneSummary: "场景摘要",
+    saved: "已保存",
+    dirty: "有修改",
+    copied: "已复制",
+    importFailed: "导入失败",
+    missing: (count) => `缺少 ${count} 项`,
+    unnamedScene: "未命名场景",
+    noMatches: "没有匹配的场景",
+    unsetLocation: "未设定地点",
+    noBody: "暂无剧情正文。",
+    unsetCharacters: "未设定角色",
+    noKeyEvent: "暂无关键事件。",
+    noGoal: "暂无玩家目标。",
+    notFilled: "未填写",
+    triggerLabel: "触发条件",
+    keyEventLabel: "关键事件",
+    presentationLabel: "表现方式",
+    emotionLabel: "情绪定位",
+    mapCurrent: (location, related, total) => `当前场景位于 ${location}。所选地点关联 ${related} 个剧情场景，路线共经过 ${total} 个地点。`,
+    highest: "最高点：",
+    lowest: "最低点：",
+    average: "平均强度：",
+    deleteTitle: "删除场景",
+    close: "关闭",
+    deleteMessage: (title) => `确定删除“${title || "未命名场景"}”吗？这个操作会从当前项目中移除该场景。`,
+    cancel: "取消",
+    exportJsonTitle: "导出 JSON",
+    exportMdTitle: "导出 Markdown",
+    exportReady: "已生成导出内容",
+  },
+  en: {
+    appKicker: "Game Narrative Tool",
+    sceneEyebrow: "List",
+    editorEyebrow: "Form",
+    previewEyebrow: "Window",
+    locationEyebrow: "Location",
+    emotionEyebrow: "Emotion",
+    exportEyebrow: "Export",
+    deleteEyebrow: "Action",
+    language: "Language",
+    import: "Import",
+    exportJson: "Export JSON",
+    exportMd: "Export MD",
+    save: "Save",
+    sceneList: "Scenes",
+    search: "Search",
+    searchPlaceholder: "Title, location, or character",
+    editor: "Editor",
+    copy: "Copy",
+    paste: "Paste",
+    delete: "Delete",
+    title: "Scene Title",
+    stage: "Story Stage",
+    location: "Location",
+    characters: "Characters",
+    emotionType: "Emotion Type",
+    emotionLevel: "Emotion Level",
+    playerGoal: "Player Goal",
+    trigger: "Trigger",
+    keyEvent: "Key Event",
+    body: "Story Text",
+    presentation: "Presentation",
+    preview: "Live Preview",
+    player: "Player",
+    designer: "Designer",
+    currentGoal: "Current Goal",
+    mapRoute: "Map Route",
+    emotionCurve: "Emotion Curve",
+    sceneSummary: "Scene Summary",
+    saved: "Saved",
+    dirty: "Unsaved",
+    copied: "Copied",
+    importFailed: "Import failed",
+    missing: (count) => `${count} missing`,
+    unnamedScene: "Untitled Scene",
+    noMatches: "No matching scenes",
+    unsetLocation: "Unset location",
+    noBody: "No story text yet.",
+    unsetCharacters: "No characters set",
+    noKeyEvent: "No key event yet.",
+    noGoal: "No player goal yet.",
+    notFilled: "Not filled",
+    triggerLabel: "Trigger",
+    keyEventLabel: "Key Event",
+    presentationLabel: "Presentation",
+    emotionLabel: "Emotion",
+    mapCurrent: (location, related, total) => `Current scene is at ${location}. Selected location has ${related} linked scene(s), and the route has ${total} location(s).`,
+    highest: "Highest:",
+    lowest: "Lowest:",
+    average: "Average:",
+    deleteTitle: "Delete Scene",
+    close: "Close",
+    deleteMessage: (title) => `Delete "${title || "Untitled Scene"}"? This will remove it from the current project.`,
+    cancel: "Cancel",
+    exportJsonTitle: "Export JSON",
+    exportMdTitle: "Export Markdown",
+    exportReady: "Export content ready",
+  },
+};
+
+let currentLanguage = localStorage.getItem(languageKey) || "zh";
 
 const routePositions = [
   ["12%", "58%"],
@@ -189,6 +333,14 @@ tabButtons.forEach((button) => {
   });
 });
 
+languageSelect.value = currentLanguage;
+languageSelect.addEventListener("change", () => {
+  currentLanguage = languageSelect.value;
+  localStorage.setItem(languageKey, currentLanguage);
+  applyLanguage();
+  renderLive();
+});
+
 fields.forEach((field) => {
   const handleFieldChange = () => {
     const scene = getActiveScene();
@@ -242,7 +394,7 @@ function getActiveScene() {
 }
 
 function markDirty() {
-  editStatus.textContent = "有修改";
+  editStatus.textContent = t("dirty");
   editStatus.classList.add("dirty");
   window.clearTimeout(saveTimer);
   saveTimer = window.setTimeout(saveProject, 450);
@@ -280,6 +432,7 @@ function openDeleteDialog() {
 
   const scene = getActiveScene();
   deleteMessage.textContent = `确定删除“${scene.title || "未命名场景"}”吗？这个操作会从当前项目中移除该场景。`;
+  deleteMessage.textContent = t("deleteMessage", scene.title);
   deleteDialog.classList.remove("hidden");
 }
 
@@ -301,7 +454,7 @@ function copyActiveScene() {
   const scene = getActiveScene();
   copiedScene = { ...scene };
   pasteScene.disabled = false;
-  editStatus.textContent = "已复制";
+  editStatus.textContent = t("copied");
   editStatus.classList.remove("dirty");
 }
 
@@ -373,8 +526,8 @@ function renderSceneList() {
     button.innerHTML = `
       <span class="scene-index">${String(index).padStart(2, "0")}</span>
       <span class="scene-main">
-        <strong>${escapeHtml(scene.title || "未命名场景")}</strong>
-        <small>${escapeHtml(scene.location || "未设定地点")} · ${escapeHtml(scene.emotionType)} ${scene.emotionLevel}</small>
+        <strong>${escapeHtml(scene.title || t("unnamedScene"))}</strong>
+        <small>${escapeHtml(scene.location || t("unsetLocation"))} · ${escapeHtml(scene.emotionType)} ${scene.emotionLevel}</small>
       </span>
     `;
     button.addEventListener("click", () => {
@@ -415,7 +568,7 @@ function renderSceneList() {
   if (!filtered.length) {
     const empty = document.createElement("p");
     empty.className = "empty-state";
-    empty.textContent = "没有匹配的场景";
+    empty.textContent = t("noMatches");
     sceneList.append(empty);
   }
 }
@@ -442,17 +595,17 @@ function reorderScene(sourceId, targetId) {
 function renderPreview() {
   const scene = getActiveScene();
 
-  previewLocation.textContent = `${scene.location || "未设定地点"} · ${scene.emotionType}`;
-  previewBody.textContent = scene.body || "暂无剧情正文。";
-  previewCharacters.textContent = scene.characters || "未设定角色";
-  previewKeyEvent.textContent = scene.keyEvent || "暂无关键事件。";
-  previewGoal.textContent = scene.playerGoal || "暂无玩家目标。";
+  previewLocation.textContent = `${scene.location || t("unsetLocation")} · ${scene.emotionType}`;
+  previewBody.textContent = scene.body || t("noBody");
+  previewCharacters.textContent = scene.characters || t("unsetCharacters");
+  previewKeyEvent.textContent = scene.keyEvent || t("noKeyEvent");
+  previewGoal.textContent = scene.playerGoal || t("noGoal");
 
   const detailItems = [
-    ["触发条件", scene.trigger],
-    ["关键事件", scene.keyEvent],
-    ["表现方式", scene.presentation],
-    ["情绪定位", `${scene.emotionType} · 强度 ${scene.emotionLevel}`],
+    [t("triggerLabel"), scene.trigger],
+    [t("keyEventLabel"), scene.keyEvent],
+    [t("presentationLabel"), scene.presentation],
+    [t("emotionLabel"), `${scene.emotionType} · ${scene.emotionLevel}`],
   ];
 
   designDetails.innerHTML = detailItems
@@ -460,7 +613,7 @@ function renderPreview() {
       ([term, description]) => `
         <div>
           <dt>${term}</dt>
-          <dd>${escapeHtml(description || "未填写")}</dd>
+          <dd>${escapeHtml(description || t("notFilled"))}</dd>
         </div>
       `,
     )
@@ -509,13 +662,18 @@ function renderMap() {
 
   const selected = locations.find((location) => location.name === selectedLocation) ?? locations[0];
   mapDetailTitle.textContent = selected.name;
-  routeNote.textContent = `当前场景位于 ${activeScene.location || "未设定地点"}。所选地点关联 ${selected.scenes.length} 个剧情场景，路线共经过 ${locations.length} 个地点。`;
+  routeNote.textContent = t(
+    "mapCurrent",
+    activeScene.location || t("unsetLocation"),
+    selected.scenes.length,
+    locations.length,
+  );
   linkedScenes.innerHTML = selected.scenes
     .map(
       (scene) => `
         <button class="${scene.id === activeId ? "active" : ""}" data-scene-id="${scene.id}">
-          <strong>${escapeHtml(scene.title || "未命名场景")}</strong>
-          <span>${escapeHtml(scene.playerGoal || "暂无玩家目标")}</span>
+          <strong>${escapeHtml(scene.title || t("unnamedScene"))}</strong>
+          <span>${escapeHtml(scene.playerGoal || t("noGoal"))}</span>
         </button>
       `,
     )
@@ -546,17 +704,17 @@ function renderEmotionChart() {
   renderEmotionLine(maxLevel);
   emotionMetrics.innerHTML = `
     <div>
-      <span>最高点：</span>
+      <span>${t("highest")}</span>
       <strong>${maxLevel}</strong>
       <small>${escapeHtml(peakScene?.title ?? "无")}</small>
     </div>
     <div>
-      <span>最低点：</span>
+      <span>${t("lowest")}</span>
       <strong>${minLevel}</strong>
       <small>${escapeHtml(lowScene?.title ?? "无")}</small>
     </div>
     <div>
-      <span>平均强度：</span>
+      <span>${t("average")}</span>
       <strong>${averageLevel.toFixed(1)}</strong>
       <small>${getPacingLabel(averageLevel)}</small>
     </div>
@@ -588,8 +746,8 @@ function renderSummary() {
     .map(
       (scene, index) => `
         <li class="${scene.id === activeId ? "active" : ""}">
-          <strong>${String(index + 1).padStart(2, "0")} ${escapeHtml(scene.title || "未命名场景")}</strong>
-          <span>${escapeHtml(scene.keyEvent || scene.playerGoal || "暂无摘要")}</span>
+          <strong>${String(index + 1).padStart(2, "0")} ${escapeHtml(scene.title || t("unnamedScene"))}</strong>
+          <span>${escapeHtml(scene.keyEvent || scene.playerGoal || t("notFilled"))}</span>
         </li>
       `,
     )
@@ -615,10 +773,10 @@ function saveProject() {
 
   try {
     localStorage.setItem(storageKey, JSON.stringify(payload));
-    editStatus.textContent = "已保存";
+    editStatus.textContent = t("saved");
     editStatus.classList.remove("dirty");
   } catch {
-    editStatus.textContent = "保存失败";
+    editStatus.textContent = currentLanguage === "zh" ? "保存失败" : "Save failed";
     editStatus.classList.add("dirty");
   }
 }
@@ -633,7 +791,7 @@ function validateActiveScene() {
   });
 
   if (missingFields.length) {
-    editStatus.textContent = `缺少 ${missingFields.length} 项`;
+    editStatus.textContent = t("missing", missingFields.length);
     editStatus.classList.add("dirty");
     missingFields[0].focus();
     return false;
@@ -716,7 +874,7 @@ function handleImportFile(event) {
       sceneSearch.value = "";
       render();
     } catch {
-      editStatus.textContent = "导入失败";
+      editStatus.textContent = t("importFailed");
       editStatus.classList.add("dirty");
     } finally {
       importFile.value = "";
@@ -733,7 +891,7 @@ function downloadJson() {
   };
 
   showExportDialog({
-    title: "导出 JSON",
+    title: t("exportJsonTitle"),
     filename: "narrative-project.json",
     content: JSON.stringify(payload, null, 2),
     type: "application/json",
@@ -767,7 +925,7 @@ function downloadMarkdown() {
   ].join("\n");
 
   showExportDialog({
-    title: "导出 Markdown",
+    title: t("exportMdTitle"),
     filename: "narrative-project.md",
     content: markdown,
     type: "text/markdown;charset=utf-8",
@@ -783,7 +941,7 @@ function showExportDialog({ title, filename, content, type }) {
   exportUrl = URL.createObjectURL(blob);
   exportTitle.textContent = title;
   exportContent.value = content;
-  exportMeta.textContent = `${filename} · ${(blob.size / 1024).toFixed(1)} KB`;
+  exportMeta.textContent = `${t("exportReady")} · ${filename} · ${(blob.size / 1024).toFixed(1)} KB`;
   downloadExport.href = exportUrl;
   downloadExport.download = filename;
   exportDialog.classList.remove("hidden");
@@ -794,6 +952,27 @@ function showExportDialog({ title, filename, content, type }) {
 function closeExportDialog() {
   exportDialog.classList.add("hidden");
   exportContent.value = "";
+}
+
+function applyLanguage() {
+  document.documentElement.lang = currentLanguage === "zh" ? "zh-CN" : "en";
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+    element.placeholder = t(element.dataset.i18nPlaceholder);
+  });
+  deleteTitle.textContent = t("deleteTitle");
+  cancelDelete.textContent = t("cancel");
+  confirmDelete.textContent = t("delete");
+  if (!editStatus.classList.contains("dirty")) {
+    editStatus.textContent = t("saved");
+  }
+}
+
+function t(key, ...args) {
+  const value = i18n[currentLanguage][key] ?? i18n.zh[key] ?? key;
+  return typeof value === "function" ? value(...args) : value;
 }
 
 function getLocations() {
@@ -816,8 +995,12 @@ function getLocations() {
 function renderEmotionLine(maxLevel) {
   const width = 100;
   const height = 100;
+  const inset = 8;
   const points = scenes.map((scene, index) => {
-    const x = scenes.length === 1 ? 50 : (index / (scenes.length - 1)) * width;
+    const x =
+      scenes.length === 1
+        ? 50
+        : inset + (index / (scenes.length - 1)) * (width - inset * 2);
     const level = Number(scene.emotionLevel) || 1;
     const y = height - (level / 10) * 82 - 8;
     return { x, y, scene, level };
@@ -902,4 +1085,5 @@ function makeId() {
   return `scene-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+applyLanguage();
 render();
