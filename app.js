@@ -7,6 +7,7 @@ const sceneList = document.querySelector("#sceneList");
 const sceneCount = document.querySelector("#sceneCount");
 const sceneSearch = document.querySelector("#sceneSearch");
 const addSceneTop = document.querySelector("#addSceneTop");
+const addSceneEditor = document.querySelector("#addSceneEditor");
 const deleteScene = document.querySelector("#deleteScene");
 const duplicateScene = document.querySelector("#duplicateScene");
 const pasteScene = document.querySelector("#pasteScene");
@@ -107,7 +108,7 @@ const i18n = {
     keyEventLabel: "关键事件",
     presentationLabel: "表现方式",
     emotionLabel: "情绪定位",
-    mapCurrent: (location, related, total) => `当前场景位于 ${location}。所选地点关联 ${related} 个剧情场景，路线共经过 ${total} 个地点。`,
+    mapCurrent: (location, related, total) => `当前场景位于 ${location}。所选地点关联 ${related} 个剧情场景，路线共显示 ${total} 个剧情节点。`,
     highest: "最高点：",
     lowest: "最低点：",
     average: "平均强度：",
@@ -118,6 +119,19 @@ const i18n = {
     exportJsonTitle: "导出 JSON",
     exportMdTitle: "导出 Markdown",
     exportReady: "已生成导出内容",
+    emotionStrength: "强度",
+    deltaUp: (value) => `上升 ${value}`,
+    deltaDown: (value) => `下降 ${value}`,
+    deltaFlat: "持平",
+    pacingHigh: "整体高压",
+    pacingBalanced: "张弛适中",
+    pacingSlow: "整体偏缓",
+    adviceStrong: "这是强节奏节点，适合承载危机、揭露或强冲突。",
+    adviceRising: "这里出现明显升压，可以作为转折或危险逼近。",
+    adviceFalling: "这里有明显缓和，适合给玩家整理线索或建立情感连接。",
+    adviceLow: "这是低压段，可以用于探索、铺垫或信息沉淀。",
+    adviceStable: "当前节奏稳定，适合推进调查和目标执行。",
+    emotionNote: (level, delta, advice) => `当前情绪强度为 ${level}，相对上一场景${delta}。${advice}`,
   },
   en: {
     appKicker: "Game Narrative Tool",
@@ -175,7 +189,7 @@ const i18n = {
     keyEventLabel: "Key Event",
     presentationLabel: "Presentation",
     emotionLabel: "Emotion",
-    mapCurrent: (location, related, total) => `Current scene is at ${location}. Selected location has ${related} linked scene(s), and the route has ${total} location(s).`,
+    mapCurrent: (location, related, total) => `Current scene is at ${location}. Selected location has ${related} linked scene(s), and the route shows ${total} story node(s).`,
     highest: "Highest:",
     lowest: "Lowest:",
     average: "Average:",
@@ -186,6 +200,19 @@ const i18n = {
     exportJsonTitle: "Export JSON",
     exportMdTitle: "Export Markdown",
     exportReady: "Export content ready",
+    emotionStrength: "Level",
+    deltaUp: (value) => `up ${value}`,
+    deltaDown: (value) => `down ${value}`,
+    deltaFlat: "flat",
+    pacingHigh: "High pressure",
+    pacingBalanced: "Balanced pacing",
+    pacingSlow: "Slow burn",
+    adviceStrong: "This is a high-intensity beat, good for crisis, reveal, or strong conflict.",
+    adviceRising: "The pressure rises clearly here, making it useful as a turn or incoming danger beat.",
+    adviceFalling: "This is a clear release point, good for clue review or emotional connection.",
+    adviceLow: "This is a low-pressure beat, useful for exploration, setup, or information settling.",
+    adviceStable: "The rhythm is stable, good for investigation and goal progression.",
+    emotionNote: (level, delta, advice) => `Current emotion level is ${level}; compared with the previous scene it is ${delta}. ${advice}`,
   },
 };
 
@@ -211,6 +238,27 @@ const emotionDefaults = {
   压迫: 7,
   震惊: 7,
   恐惧: 8,
+};
+
+const emotionLabels = {
+  zh: {
+    平静: "平静",
+    希望: "希望",
+    悬疑: "悬疑",
+    紧张: "紧张",
+    压迫: "压迫",
+    震惊: "震惊",
+    恐惧: "恐惧",
+  },
+  en: {
+    平静: "Calm",
+    希望: "Hope",
+    悬疑: "Mystery",
+    紧张: "Tension",
+    压迫: "Pressure",
+    震惊: "Shock",
+    恐惧: "Fear",
+  },
 };
 
 const defaultScenes = [
@@ -363,6 +411,7 @@ fields.forEach((field) => {
 
 sceneSearch.addEventListener("input", renderSceneList);
 addSceneTop.addEventListener("click", addScene);
+addSceneEditor.addEventListener("click", addScene);
 deleteScene.addEventListener("click", openDeleteDialog);
 duplicateScene.addEventListener("click", copyActiveScene);
 pasteScene.addEventListener("click", pasteCopiedScene);
@@ -527,7 +576,7 @@ function renderSceneList() {
       <span class="scene-index">${String(index).padStart(2, "0")}</span>
       <span class="scene-main">
         <strong>${escapeHtml(scene.title || t("unnamedScene"))}</strong>
-        <small>${escapeHtml(scene.location || t("unsetLocation"))} · ${escapeHtml(scene.emotionType)} ${scene.emotionLevel}</small>
+        <small>${escapeHtml(scene.location || t("unsetLocation"))} · ${escapeHtml(getEmotionLabel(scene.emotionType))} ${scene.emotionLevel}</small>
       </span>
     `;
     button.addEventListener("click", () => {
@@ -595,7 +644,7 @@ function reorderScene(sourceId, targetId) {
 function renderPreview() {
   const scene = getActiveScene();
 
-  previewLocation.textContent = `${scene.location || t("unsetLocation")} · ${scene.emotionType}`;
+  previewLocation.textContent = `${scene.location || t("unsetLocation")} · ${getEmotionLabel(scene.emotionType)}`;
   previewBody.textContent = scene.body || t("noBody");
   previewCharacters.textContent = scene.characters || t("unsetCharacters");
   previewKeyEvent.textContent = scene.keyEvent || t("noKeyEvent");
@@ -605,7 +654,7 @@ function renderPreview() {
     [t("triggerLabel"), scene.trigger],
     [t("keyEventLabel"), scene.keyEvent],
     [t("presentationLabel"), scene.presentation],
-    [t("emotionLabel"), `${scene.emotionType} · ${scene.emotionLevel}`],
+    [t("emotionLabel"), `${getEmotionLabel(scene.emotionType)} · ${t("emotionStrength")} ${scene.emotionLevel}`],
   ];
 
   designDetails.innerHTML = detailItems
@@ -628,20 +677,28 @@ function renderMap() {
   routeMap.innerHTML = "";
   routeStrip.innerHTML = "";
 
-  locations.forEach((locationItem, index) => {
-    const x = locations.length === 1 ? "50%" : `${10 + (index / (locations.length - 1)) * 80}%`;
+  const locationTotals = scenes.reduce((totals, scene) => {
+    const locationName = scene.location || t("unsetLocation");
+    totals.set(locationName, (totals.get(locationName) || 0) + 1);
+    return totals;
+  }, new Map());
+  const locationOccurrences = new Map();
+  scenes.forEach((scene, index) => {
+    const locationName = scene.location || t("unsetLocation");
+    const occurrence = (locationOccurrences.get(locationName) || 0) + 1;
+    locationOccurrences.set(locationName, occurrence);
+    const x = scenes.length === 1 ? "50%" : `${10 + (index / (scenes.length - 1)) * 80}%`;
     const y = "50%";
     const node = document.createElement("button");
-    const isActive = locationItem.name === activeScene.location;
-    const isSelected = locationItem.name === selectedLocation;
-    const relatedScene = locationItem.scenes[0];
-    node.className = `map-node${isActive ? " current" : ""}${isSelected ? " selected" : ""}${index === locations.length - 1 ? " danger" : ""}`;
+    const isActive = scene.id === activeId;
+    const isSelected = locationName === selectedLocation;
+    node.className = `map-node${isActive ? " current" : ""}${isSelected ? " selected" : ""}${index === scenes.length - 1 ? " danger" : ""}`;
     node.style.setProperty("--x", x);
     node.style.setProperty("--y", y);
-    node.innerHTML = `${escapeHtml(locationItem.name)}<small>${locationItem.scenes.length}</small>`;
+    node.innerHTML = `${escapeHtml(locationName)}${locationTotals.get(locationName) > 1 ? `<small>${occurrence}</small>` : ""}`;
     node.addEventListener("click", () => {
-      selectedLocation = locationItem.name;
-      activeId = relatedScene.id;
+      selectedLocation = locationName;
+      activeId = scene.id;
       render();
     });
     routeMap.append(node);
@@ -650,11 +707,11 @@ function renderMap() {
     routeItem.className = `route-step${isActive ? " current" : ""}${isSelected ? " selected" : ""}`;
     routeItem.innerHTML = `
       <span>${String(index + 1).padStart(2, "0")}</span>
-      <strong>${escapeHtml(locationItem.name)}</strong>
+      <strong>${escapeHtml(locationName)}</strong>
     `;
     routeItem.addEventListener("click", () => {
-      selectedLocation = locationItem.name;
-      activeId = relatedScene.id;
+      selectedLocation = locationName;
+      activeId = scene.id;
       render();
     });
     routeStrip.append(routeItem);
@@ -666,7 +723,7 @@ function renderMap() {
     "mapCurrent",
     activeScene.location || t("unsetLocation"),
     selected.scenes.length,
-    locations.length,
+    scenes.length,
   );
   linkedScenes.innerHTML = selected.scenes
     .map(
@@ -720,13 +777,18 @@ function renderEmotionChart() {
     </div>
   `;
 
-  emotionTitle.textContent = `${activeScene.title || "当前场景"} · ${activeScene.emotionType}`;
-  emotionNote.textContent = `当前情绪强度为 ${activeScene.emotionLevel}，相对上一场景${formatDelta(delta)}。${getScenePacingAdvice(activeLevel, delta)}`;
+  emotionTitle.textContent = `${activeScene.title || t("unnamedScene")} · ${getEmotionLabel(activeScene.emotionType)}`;
+  emotionNote.textContent = t(
+    "emotionNote",
+    activeScene.emotionLevel,
+    formatDelta(delta),
+    getScenePacingAdvice(activeLevel, delta),
+  );
   emotionTags.innerHTML = scenes
     .map(
       (scene) => `
         <button class="${scene.id === activeId ? "active" : ""}" data-scene-id="${scene.id}">
-          ${escapeHtml(scene.emotionType)} ${scene.emotionLevel}
+          ${escapeHtml(getEmotionLabel(scene.emotionType))} ${scene.emotionLevel}
         </button>
       `,
     )
@@ -801,7 +863,7 @@ function validateActiveScene() {
 }
 
 function loadProject() {
-  const fallback = cloneScenes(defaultScenes);
+  const fallback = cloneScenes(defaultScenes.slice(0, 1));
   const fallbackState = { scenes: fallback, activeId: fallback[0].id };
   let raw = null;
 
@@ -965,14 +1027,26 @@ function applyLanguage() {
   deleteTitle.textContent = t("deleteTitle");
   cancelDelete.textContent = t("cancel");
   confirmDelete.textContent = t("delete");
+  updateEmotionOptions();
   if (!editStatus.classList.contains("dirty")) {
     editStatus.textContent = t("saved");
   }
 }
 
+function updateEmotionOptions() {
+  const emotionSelect = document.querySelector('[data-field="emotionType"]');
+  emotionSelect.querySelectorAll("option").forEach((option) => {
+    option.textContent = getEmotionLabel(option.value);
+  });
+}
+
 function t(key, ...args) {
   const value = i18n[currentLanguage][key] ?? i18n.zh[key] ?? key;
   return typeof value === "function" ? value(...args) : value;
+}
+
+function getEmotionLabel(type) {
+  return emotionLabels[currentLanguage]?.[type] ?? type;
 }
 
 function getLocations() {
@@ -1022,7 +1096,7 @@ function renderEmotionLine(maxLevel) {
               class="${point.scene.id === activeId ? "active" : ""}${point.level === maxLevel ? " peak" : ""}"
               style="--x:${point.x}%; --y:${point.y}%"
               data-scene-id="${point.scene.id}"
-              title="${escapeHtml(point.scene.title)} · ${escapeHtml(point.scene.emotionType)} ${point.level}"
+              title="${escapeHtml(point.scene.title)} · ${escapeHtml(getEmotionLabel(point.scene.emotionType))} ${point.level}"
             >
               <span>${point.level}</span>
             </button>
@@ -1043,38 +1117,38 @@ function renderEmotionLine(maxLevel) {
 
 function formatDelta(delta) {
   if (delta > 0) {
-    return `上升 ${delta}`;
+    return t("deltaUp", delta);
   }
   if (delta < 0) {
-    return `下降 ${Math.abs(delta)}`;
+    return t("deltaDown", Math.abs(delta));
   }
-  return "持平";
+  return t("deltaFlat");
 }
 
 function getPacingLabel(value) {
   if (value >= 7) {
-    return "整体高压";
+    return t("pacingHigh");
   }
   if (value >= 4.5) {
-    return "张弛适中";
+    return t("pacingBalanced");
   }
-  return "整体偏缓";
+  return t("pacingSlow");
 }
 
 function getScenePacingAdvice(level, delta) {
   if (level >= 8) {
-    return "这是强节奏节点，适合承载危机、揭露或强冲突。";
+    return t("adviceStrong");
   }
   if (delta >= 3) {
-    return "这里出现明显升压，可以作为转折或危险逼近。";
+    return t("adviceRising");
   }
   if (delta <= -3) {
-    return "这里有明显缓和，适合给玩家整理线索或建立情感连接。";
+    return t("adviceFalling");
   }
   if (level <= 3) {
-    return "这是低压段，可以用于探索、铺垫或信息沉淀。";
+    return t("adviceLow");
   }
-  return "当前节奏稳定，适合推进调查和目标执行。";
+  return t("adviceStable");
 }
 
 function makeId() {
